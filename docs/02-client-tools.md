@@ -10,8 +10,8 @@ On the **gateway-01** VM, download and install `cfssl` and `cfssljson`:
 
 ```bash
 wget -q --show-progress --https-only --timestamping \
-  https://storage.googleapis.com/kubernetes-the-hard-way/cfssl/linux/cfssl \
-  https://storage.googleapis.com/kubernetes-the-hard-way/cfssl/linux/cfssljson
+  https://pkg.cfssl.org/R1.2/cfssl_linux-amd64 \
+  https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
 ```
 
 ```bash
