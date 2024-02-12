@@ -9,9 +9,8 @@ The `cfssl` and `cfssljson` command line utilities will be used to provision a [
 On the **gateway-01** VM, download and install `cfssl` and `cfssljson`:
 
 ```bash
-wget -q --show-progress --https-only --timestamping \
-  https://pkg.cfssl.org/R1.2/cfssl_linux-amd64 \
-  https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
+  wget -q --show-progress --https-only --timestamping https://github.com/cloudflare/cfssl/releases/download/v1.6.4/cfssl_1.6.4_linux_amd64 -O cfssl
+  wget -q --show-progress --https-only --timestamping https://github.com/cloudflare/cfssl/releases/download/v1.6.4/cfssljson_1.6.4_linux_amd64  -O cfssljson
 ```
 
 ```bash
