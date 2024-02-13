@@ -290,9 +290,9 @@ ssh root@controller-0 kubectl get nodes --kubeconfig admin.kubeconfig
 
 ```bash
 NAME       STATUS   ROLES    AGE   VERSION
-worker-0   Ready    <none>   15s   v1.21.5
-worker-1   Ready    <none>   15s   v1.21.5
-worker-2   Ready    <none>   15s   v1.21.5
+worker-0   Ready    <none>   15s   v1.29.1
+worker-1   Ready    <none>   15s   v1.29.1
+worker-2   Ready    <none>   15s   v1.29.1
 ```
 
 Next: [Configuring kubectl for Remote Access](10-configuring-kubectl.md)
