@@ -46,23 +46,14 @@ sudo swapoff -a
 ### Download and Install Worker Binaries
 
 ```bash
-curl --location \
-  --remote-name --time-cond containerd-1.7.13-linux-amd64.tar.gz \
-  https://github.com/containerd/containerd/releases/download/v1.7.13/containerd-1.7.13-linux-amd64.tar.gz \
-  --remote-name --time-cond containerd.service \
-  https://raw.githubusercontent.com/containerd/containerd/v1.7.13/containerd.service \
-  --output runc --time-cond runc \
-  https://github.com/opencontainers/runc/releases/download/v1.1.12/runc.amd64 \
-  --remote-name --time-cond cni-plugins-linux-amd64-v1.4.0.tgz \
-  https://github.com/containernetworking/plugins/releases/download/v1.4.0/cni-plugins-linux-amd64-v1.4.0.tgz \
-  --remote-name --time-cond crictl-v1.29.0-linux-amd64.tar.gz \
+wget -q --show-progress --https-only --timestamping \
   https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.29.0/crictl-v1.29.0-linux-amd64.tar.gz \
-  --remote-name --time-cond kube-proxy \
-  https://dl.k8s.io/release/v1.29.1/bin/linux/amd64/kube-proxy \
-  --remote-name --time-cond kubectl \
-  https://dl.k8s.io/release/v1.29.1/bin/linux/amd64/kubectl \
-  --remote-name --time-cond kubelet \
-  https://dl.k8s.io/release/v1.29.1/bin/linux/amd64/kubelet
+  https://github.com/opencontainers/runc/releases/download/v1.1.12/runc.amd64 \
+  https://github.com/containernetworking/plugins/releases/download/v1.4.0/cni-plugins-linux-amd64-v1.4.0.tgz \
+  https://github.com/containerd/containerd/releases/download/v1.7.13/containerd-1.7.13-linux-amd64.tar.gz \
+  https://storage.googleapis.com/kubernetes-release/release/v1.29.1/bin/linux/amd64/kubectl \
+  https://storage.googleapis.com/kubernetes-release/release/v1.29.1/bin/linux/amd64/kube-proxy \
+  https://storage.googleapis.com/kubernetes-release/release/v1.29.1/bin/linux/amd64/kubelet
 ```
 
 Create the installation directories:
@@ -80,21 +71,14 @@ sudo mkdir -p \
 Install the worker binaries:
 
 ```bash
-sudo tar --directory /usr/local/ --extract \
-  --file containerd-1.7.13-linux-amd64.tar.gz --gunzip --verbose
-
-sudo mkdir --parents /usr/local/lib/systemd/system
-
-sudo cp containerd.service /usr/local/lib/systemd/system/
-
-sudo install --mode 0755 runc /usr/local/sbin/
-
-tar --extract --file crictl-v1.29.0-linux-amd64.tar.gz --gunzip --verbose
-
-sudo tar --directory /opt/cni/bin/ --extract \
-  --file cni-plugins-linux-amd64-v1.4.0.tgz --gunzip --verbose
-
-sudo install --mode 0755 crictl kube-proxy kubectl kubelet /usr/local/bin/
+mkdir containerd
+tar -xvf crictl-v1.29.0-linux-amd64.tar.gz
+tar -xvf containerd-1.7.13-linux-amd64.tar.gz -C containerd
+sudo tar -xvf cni-plugins-linux-amd64-v1.4.0.tgz -C /opt/cni/bin/
+sudo mv runc.amd64 runc
+chmod +x crictl kubectl kube-proxy kubelet runc
+sudo mv crictl kubectl kube-proxy kubelet runc /usr/local/bin/
+sudo mv containerd/bin/* /bin/
 ```
 
 ### Configure CNI Networking
@@ -112,7 +96,7 @@ Create the `bridge` network configuration file:
 ```bash
 cat <<EOF | sudo tee /etc/cni/net.d/10-bridge.conf
 {
-    "cniVersion": "0.4.0",
+    "cniVersion": "1.0.0",
     "name": "bridge",
     "type": "bridge",
     "bridge": "cnio0",
@@ -134,7 +118,7 @@ Create the `loopback` network configuration file:
 ```bash
 cat <<EOF | sudo tee /etc/cni/net.d/99-loopback.conf
 {
-    "cniVersion": "0.4.0",
+    "cniVersion": "1.0.0",
     "name": "lo",
     "type": "loopback"
 }
@@ -236,12 +220,7 @@ Requires=containerd.service
 [Service]
 ExecStart=/usr/local/bin/kubelet \\
   --config=/var/lib/kubelet/kubelet-config.yaml \\
-  --container-runtime=remote \\
-  --container-runtime-endpoint=unix:///var/run/containerd/containerd.sock \\
-  --image-pull-progress-deadline=2m \\
   --kubeconfig=/var/lib/kubelet/kubeconfig \\
-  --network-plugin=cni \\
-  --register-node=true \\
   --v=2
 Restart=on-failure
 RestartSec=5
