@@ -46,14 +46,23 @@ sudo swapoff -a
 ### Download and Install Worker Binaries
 
 ```bash
-wget -q --show-progress --https-only --timestamping \
-  https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.21.0/crictl-v1.21.0-linux-amd64.tar.gz \
-  https://github.com/opencontainers/runc/releases/download/v1.0.0-rc93/runc.amd64 \
-  https://github.com/containernetworking/plugins/releases/download/v0.9.1/cni-plugins-linux-amd64-v0.9.1.tgz \
-  https://github.com/containerd/containerd/releases/download/v1.4.4/containerd-1.4.4.linux-amd64.tar.gz \
-  https://storage.googleapis.com/kubernetes-release/release/v1.21.5/bin/linux/amd64/kubectl \
-  https://storage.googleapis.com/kubernetes-release/release/v1.21.5/bin/linux/amd64/kube-proxy \
-  https://storage.googleapis.com/kubernetes-release/release/v1.21.5/bin/linux/amd64/kubelet
+curl --location \
+  --remote-name --time-cond containerd-1.7.13-linux-amd64.tar.gz \
+  https://github.com/containerd/containerd/releases/download/v1.7.13/containerd-1.7.13-linux-amd64.tar.gz \
+  --remote-name --time-cond containerd.service \
+  https://raw.githubusercontent.com/containerd/containerd/v1.7.13/containerd.service \
+  --output runc --time-cond runc \
+  https://github.com/opencontainers/runc/releases/download/v1.1.12/runc.amd64 \
+  --remote-name --time-cond cni-plugins-linux-amd64-v1.4.0.tgz \
+  https://github.com/containernetworking/plugins/releases/download/v1.4.0/cni-plugins-linux-amd64-v1.4.0.tgz \
+  --remote-name --time-cond crictl-v1.29.0-linux-amd64.tar.gz \
+  https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.29.0/crictl-v1.29.0-linux-amd64.tar.gz \
+  --remote-name --time-cond kube-proxy \
+  https://dl.k8s.io/release/v1.29.1/bin/linux/amd64/kube-proxy \
+  --remote-name --time-cond kubectl \
+  https://dl.k8s.io/release/v1.29.1/bin/linux/amd64/kubectl \
+  --remote-name --time-cond kubelet \
+  https://dl.k8s.io/release/v1.29.1/bin/linux/amd64/kubelet
 ```
 
 Create the installation directories:
@@ -71,14 +80,21 @@ sudo mkdir -p \
 Install the worker binaries:
 
 ```bash
-mkdir containerd
-tar -xvf crictl-v1.21.5-linux-amd64.tar.gz
-tar -xvf containerd-1.4.4-linux-amd64.tar.gz -C containerd
-sudo tar -xvf cni-plugins-linux-amd64-v0.9.1.tgz -C /opt/cni/bin/
-sudo mv runc.amd64 runc
-chmod +x crictl kubectl kube-proxy kubelet runc
-sudo mv crictl kubectl kube-proxy kubelet runc /usr/local/bin/
-sudo mv containerd/bin/* /bin/
+sudo tar --directory /usr/local/ --extract \
+  --file containerd-1.7.13-linux-amd64.tar.gz --gunzip --verbose
+
+sudo mkdir --parents /usr/local/lib/systemd/system
+
+sudo cp containerd.service /usr/local/lib/systemd/system/
+
+sudo install --mode 0755 runc /usr/local/sbin/
+
+tar --extract --file crictl-v1.29.0-linux-amd64.tar.gz --gunzip --verbose
+
+sudo tar --directory /opt/cni/bin/ --extract \
+  --file cni-plugins-linux-amd64-v1.4.0.tgz --gunzip --verbose
+
+sudo install --mode 0755 crictl kube-proxy kubectl kubelet /usr/local/bin/
 ```
 
 ### Configure CNI Networking
