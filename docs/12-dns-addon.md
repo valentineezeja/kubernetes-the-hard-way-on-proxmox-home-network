@@ -7,20 +7,9 @@ In this lab you will deploy the [DNS add-on](https://kubernetes.io/docs/concepts
 Get the CoreDNS yaml:
 
 ```bash
-wget https://storage.googleapis.com/kubernetes-the-hard-way/coredns-1.8.yaml
+kubectl apply -f https://raw.githubusercontent.com/DushanthaS/kubernetes-the-hard-way-on-proxmox/master/deployments/coredns.yaml
 ```
 
-Edit the `coredns.yaml` file to change CoreDNS configuration to enable DNS resolution for external name:
-
-```bash
-sed '/.*prometheus :9153/a \ \ \ \ \ \ \ \ forward . /etc/resolv.conf' coredns.yaml
-```
-
-Deploy the `coredns` cluster add-on:
-
-```bash
-kubectl apply -f coredns.yaml
-```
 
 > Output:
 
