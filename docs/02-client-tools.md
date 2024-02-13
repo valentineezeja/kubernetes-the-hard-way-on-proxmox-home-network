@@ -54,7 +54,7 @@ Runtime: go1.13
 The `kubectl` command line utility is used to interact with the Kubernetes API Server. On the **gateway-01** VM, download and install `kubectl` from the official release binaries:
 
 ```bash
-wget https://storage.googleapis.com/kubernetes-release/release/v1.21.5/bin/linux/amd64/kubectl
+wget https://storage.googleapis.com/kubernetes-release/release/v1.29.1/bin/linux/amd64/kubectl
 ```
 
 ```bash
