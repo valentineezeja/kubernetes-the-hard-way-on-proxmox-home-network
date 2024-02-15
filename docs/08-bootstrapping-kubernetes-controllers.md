@@ -348,12 +348,12 @@ curl --cacert ca.pem https://${KUBERNETES_PUBLIC_ADDRESS}:6443/version
 ```bash
 {
   "major": "1",
-  "minor": "21",
-  "gitVersion": "v1.21.5",
-  "gitCommit": "c96aede7b5205121079932896c4ad89bb93260af",
+  "minor": "29",
+  "gitVersion": "v1.29.1",
+  "gitCommit": "bc401b91f2782410b3fb3f9acf43a995c4de90d2",
   "gitTreeState": "clean",
-  "buildDate": "2020-06-17T11:33:59Z",
-  "goVersion": "go1.16.5",
+  "buildDate": "2024-01-17T15:41:12Z",
+  "goVersion": "go1.21.6",
   "compiler": "gc",
   "platform": "linux/amd64"
 }
