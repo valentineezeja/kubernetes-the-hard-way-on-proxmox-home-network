@@ -289,4 +289,15 @@ worker-1   Ready    <none>   15s   v1.29.1
 worker-2   Ready    <none>   15s   v1.29.1
 ```
 
+> [!NOTE]
+> By default kube-proxy uses iptables to set up Service IP handling and load balancing. Unfortunately, it breaks our deployment and there's a hack to force Linux to run iptables even for bridge-only traffic:
+> Run this on all control and worker nodes. 
+
+```bash
+sudo modprobe br_netfilter
+echo "br-netfilter" >> /etc/modules-load.d/modules.conf
+sysctl -w net.bridge.bridge-nf-call-iptables=1
+```
+
+
 Next: [Configuring kubectl for Remote Access](10-configuring-kubectl.md)
