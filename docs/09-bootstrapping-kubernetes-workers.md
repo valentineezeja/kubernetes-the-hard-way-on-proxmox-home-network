@@ -291,6 +291,7 @@ worker-2   Ready    <none>   15s   v1.29.1
 
 > [!NOTE]
 > By default kube-proxy uses iptables to set up Service IP handling and load balancing. Unfortunately, it breaks our deployment and there's a hack to force Linux to run iptables even for bridge-only traffic:
+> 
 > Run this on all control and worker nodes. 
 
 ```bash
