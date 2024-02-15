@@ -132,17 +132,10 @@ Create the `containerd` configuration file:
 ```bash
 sudo mkdir -p /etc/containerd/
 ```
+Set up containerd configuration to enable systemd Cgroups
 
 ```bash
-cat << EOF | sudo tee /etc/containerd/config.toml
-[plugins]
-  [plugins.cri.containerd]
-    snapshotter = "overlayfs"
-    [plugins.cri.containerd.default_runtime]
-      runtime_type = "io.containerd.runtime.v1.linux"
-      runtime_engine = "/usr/local/bin/runc"
-      runtime_root = ""
-EOF
+ containerd config default | sed 's/SystemdCgroup = false/SystemdCgroup = true/' | sudo tee /etc/containerd/config.toml
 ```
 
 Create the `containerd.service` systemd unit file:
