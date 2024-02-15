@@ -76,7 +76,9 @@ kubectl version --client
 > Output:
 
 ```bash
-Client Version: version.Info{Major:"1", Minor:"18", GitVersion:"v1.21.5", GitCommit:"c96aede7b5205121079932896c4ad89bb93260af", GitTreeState:"clean", BuildDate:"2020-06-17T11:41:22Z", GoVersion:"go1.16.5", Compiler:"gc", Platform:"linux/amd64"}
+Client Version: v1.29.1
+Kustomize Version: v5.0.4-0.20230601165947-6ce0bf390ce3
+
 ```
 
 Next: [Provisioning Compute Resources](03-compute-resources.md)
