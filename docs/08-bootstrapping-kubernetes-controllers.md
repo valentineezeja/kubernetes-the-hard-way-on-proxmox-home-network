@@ -126,7 +126,7 @@ Documentation=https://github.com/kubernetes/kubernetes
 
 [Service]
 ExecStart=/usr/local/bin/kube-controller-manager \\
-  --address=0.0.0.0 \\
+  --bind-address=0.0.0.0 \\
   --cluster-cidr=10.200.0.0/16 \\
   --cluster-name=kubernetes \\
   --cluster-signing-cert-file=/var/lib/kubernetes/ca.pem \\
@@ -291,11 +291,11 @@ In this section you will provision an Nginx load balancer to front the Kubernete
 
 ### Provision an Nginx Load Balancer
 
-Install the Nginx Load Balancer:
+Install the Nginx Load Balancer and stream library:
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y nginx
+sudo apt-get install -y nginx libnginx-mod-stream 
 ```
 
 As **root** user, Create the Nginx load balancer network configuration:
