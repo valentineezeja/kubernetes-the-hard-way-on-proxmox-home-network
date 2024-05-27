@@ -176,10 +176,10 @@ NODE_PORT=$(kubectl get svc nginx \
 Define the Kubernetes network IP address of a worker instance (replace MY_WORKER_IP with the private IP defined on a worker):
 
 ```bash
-NODE_IP=MY_WORKER_IP
+NODE_IP=172.16.0.20
 ```
 
-> Example for worker-0: 192.168.8.20
+> Example for worker-0: 172.16.0.20
 
 Make an HTTP request using the external IP address and the `nginx` node port:
 
@@ -191,13 +191,13 @@ curl -I http://${NODE_IP}:${NODE_PORT}
 
 ```bash
 HTTP/1.1 200 OK
-Server: nginx/1.19.0
-Date: Wed, 24 Jun 2020 12:57:37 GMT
+Server: nginx/1.25.5
+Date: Mon, 27 May 2024 22:45:33 GMT
 Content-Type: text/html
-Content-Length: 612
-Last-Modified: Tue, 26 May 2020 15:00:20 GMT
+Content-Length: 615
+Last-Modified: Tue, 16 Apr 2024 14:29:59 GMT
 Connection: keep-alive
-ETag: "5ecd2f04-264"
+ETag: "661e8b67-267"
 Accept-Ranges: bytes
 ```
 

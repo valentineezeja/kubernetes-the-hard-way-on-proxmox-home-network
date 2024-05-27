@@ -8,12 +8,12 @@ In this section you will generate kubeconfig files for the `controller manager`,
 
 ### Kubernetes Public IP Address
 
-Each kubeconfig requires a Kubernetes API Server to connect to. To support high availability the IP address assigned to the external load balancer fronting the Kubernetes API Servers will be used.
+Each kubeconfig requires a Kubernetes API Server to connect to. To support high availability, the domain assigned to the external load balancer fronting the Kubernetes API Servers will be used.
 
-Define the static public IP address (you need to replace YOUR_EXTERNAL_IP by your external IP address):
+Define the static public IP address as your domain name (you need to replace YOUR_EXTERNAL_IP by your domain name):
 
 ```bash
-KUBERNETES_PUBLIC_ADDRESS=YOUR_EXTERNAL_IP
+KUBERNETES_PUBLIC_ADDRESS=YOUR_DOMAIN_NAME
 ```
 
 ### The kubelet Kubernetes Configuration File

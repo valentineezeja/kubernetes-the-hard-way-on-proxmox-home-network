@@ -57,12 +57,12 @@ The instance internal IP address will be used to advertise the API Server to mem
 INTERNAL_IP=MY_NODE_INTERNAL_IP
 ```
 
-> Example for controller-0 : 192.168.8.10
+> Example for controller-0 : 172.16.0.10
 
 Create the `kube-apiserver.service` systemd unit file:
 
 ```bash
-KUBERNETES_PUBLIC_ADDRESS=MY_PUBLIC_IP_ADDRESS
+KUBERNETES_PUBLIC_ADDRESS=MY_DOMAIN_NAME
 
 cat <<EOF | sudo tee /etc/systemd/system/kube-apiserver.service
 [Unit]
@@ -85,7 +85,7 @@ ExecStart=/usr/local/bin/kube-apiserver \\
   --etcd-cafile=/var/lib/kubernetes/ca.pem \\
   --etcd-certfile=/var/lib/kubernetes/kubernetes.pem \\
   --etcd-keyfile=/var/lib/kubernetes/kubernetes-key.pem \\
-  --etcd-servers=https://192.168.8.10:2379,https://192.168.8.11:2379,https://192.168.8.12:2379 \\
+  --etcd-servers=https://172.16.0.10:2379,https://172.16.0.11:2379,https://172.16.0.12:2379 \\
   --event-ttl=1h \\
   --encryption-provider-config=/var/lib/kubernetes/encryption-config.yaml \\
   --kubelet-certificate-authority=/var/lib/kubernetes/ca.pem \\
@@ -214,11 +214,15 @@ curl -kH "Host: kubernetes.default.svc.cluster.local" -i https://127.0.0.1:6443/
 ```
 
 ```bash
-HTTP/2 200
+HTTP/2 200 
+audit-id: ab555cf4-d0f6-453e-ab76-42467f3f5c24
+cache-control: no-cache, private
 content-type: text/plain; charset=utf-8
 x-content-type-options: nosniff
+x-kubernetes-pf-flowschema-uid: 612f0cd7-27a0-47d1-85e0-48cebe0d23c5
+x-kubernetes-pf-prioritylevel-uid: 56c0050b-e14a-4e06-95f1-6a1bfe2d752b
 content-length: 2
-date: Wed, 24 Jun 2020 12:24:52 GMT
+date: Mon, 27 May 2024 12:14:11 GMT
 
 ok
 ```
@@ -231,7 +235,7 @@ In this section you will configure RBAC permissions to allow the Kubernetes API 
 
 > This tutorial sets the Kubelet `--authorization-mode` flag to `Webhook`. Webhook mode uses the [SubjectAccessReview](https://kubernetes.io/docs/admin/authorization/#checking-api-access) API to determine authorization.
 
-The commands in this section will effect the entire cluster and only need to be run once from one of the controller nodes.
+The commands in this section will affect the entire cluster and only need to be run once from one of the controller nodes.
 
 ```bash
 ssh root@controller-0
@@ -304,9 +308,9 @@ As **root** user, Create the Nginx load balancer network configuration:
 cat <<EOF >> /etc/nginx/nginx.conf
 stream {
     upstream controller_backend {
-        server 192.168.8.10:6443;
-        server 192.168.8.11:6443;
-        server 192.168.8.12:6443;
+        server 172.16.0.10:6443;
+        server 172.16.0.11:6443;
+        server 172.16.0.12:6443;
     }
     server {
         listen     6443;
@@ -331,10 +335,10 @@ sudo systemctl enable nginx
 
 ### Load Balancer Verification
 
-Define the static public IP address (replace MY_PUBLIC_IP_ADDRESS with your public IP address on the `gateway-01` VM):
+Define the static public IP address (in this case, the domain name). Replace MY_PUBLIC_IP_ADDRESS with your domain name:
 
 ```bash
-KUBERNETES_PUBLIC_ADDRESS=MY_PUBLIC_IP_ADDRESS
+KUBERNETES_PUBLIC_ADDRESS=MY_DOMAIN_NAME
 ```
 
 Make a HTTP request for the Kubernetes version info:
@@ -358,5 +362,16 @@ curl --cacert ca.pem https://${KUBERNETES_PUBLIC_ADDRESS}:6443/version
   "platform": "linux/amd64"
 }
 ```
+
+> If you encounter any issues with making the HTTP request for version info per the command above, check the following:
+*- Run `kubectl config view` to confirm that the config looks good.*
+*- Ensure that `proxied status` is not enabled for the DNS record on Cloudflare (run `nslookup your-domain.com` to confirm that it correctly resolves to your current public IP address).*
+*- Ensure that you have set up port forwarding on your home router to allow traffic through port 6443 on the gateway VM `192.168.0.38`.* Example config on my router:
+
+| IP Address    | External Port Range | Internal Port Range | Protocol | Enabled |
+|---------------|---------------------|---------------------|----------|---------|
+| 192.168.0.38  | 6443 - 6443         | 6443 - 6443         | TCP      | Yes     |
+
+
 
 Next: [Bootstrapping the Kubernetes Worker Nodes](09-bootstrapping-kubernetes-workers.md)

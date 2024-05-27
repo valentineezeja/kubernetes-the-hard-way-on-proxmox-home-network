@@ -45,7 +45,7 @@ The instance internal IP address will be used to serve client requests and commu
 INTERNAL_IP=MY_NODE_INTERNAL_IP
 ```
 
-> Example for controller-0 : 192.168.8.10
+> Example for controller-0 : 172.16.0.10
 
 Each etcd member must have a unique name within an etcd cluster. Set the etcd name to match the hostname of the current compute instance:
 
@@ -78,7 +78,7 @@ ExecStart=/usr/local/bin/etcd \\
   --listen-client-urls https://${INTERNAL_IP}:2379,https://127.0.0.1:2379 \\
   --advertise-client-urls https://${INTERNAL_IP}:2379 \\
   --initial-cluster-token etcd-cluster-0 \\
-  --initial-cluster controller-0=https://192.168.8.10:2380,controller-1=https://192.168.8.11:2380,controller-2=https://192.168.8.12:2380 \\
+  --initial-cluster controller-0=https://172.16.0.10:2380,controller-1=https://172.16.0.11:2380,controller-2=https://172.16.0.12:2380 \\
   --initial-cluster-state new \\
   --data-dir=/var/lib/etcd
 Restart=on-failure
@@ -114,9 +114,9 @@ sudo ETCDCTL_API=3 etcdctl member list \
 > Output:
 
 ```bash
-3a57933972cb5131, started, controller-2, https://192.168.8.12:2380, https://192.168.8.12:2379
-f98dc20bce6225a0, started, controller-0, https://192.168.8.10:2380, https://192.168.8.10:2379
-ffed16798470cab5, started, controller-1, https://192.168.8.11:2380, https://192.168.8.11:2379
+18d94269c68b3e4f, started, controller-0, https://172.16.0.10:2380, https://172.16.0.10:2379
+6deda09816bffb4a, started, controller-1, https://172.16.0.11:2380, https://172.16.0.11:2379
+abb3e4535e507314, started, controller-2, https://172.16.0.12:2380, https://172.16.0.12:2379
 ```
 
 Next: [Bootstrapping the Kubernetes Control Plane](08-bootstrapping-kubernetes-controllers.md)

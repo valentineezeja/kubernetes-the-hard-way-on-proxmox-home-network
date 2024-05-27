@@ -10,7 +10,7 @@ The Kubernetes [networking model](https://kubernetes.io/docs/concepts/cluster-ad
 
 ### Virtual Private Cloud Network
 
-We provisioned this network in the `01-prerequisites` part: `192.168.8.0/24` which can host up to `253` Kubernetes nodes (`254 - 1` for gateway). This is our "VPC-like" network with private IP addresses.
+We provisioned this network in the `01-prerequisites` part: `172.16.0.0/24` which can host up to `252` Kubernetes nodes (`254 - 2` for gateway and admin/jumpbox servers). This is our "VPC-like" network with private IP addresses.
 
 ### Pods Network Ranges
 
@@ -24,7 +24,7 @@ Containers/Pods running on each workers need networks to communicate with other 
 
 All the flows are allowed inside the Kubernetes private network (`vmbr8`). In the `01-prerequisites` part, the `gateway-01` VM firewall has been configured to use NAT and allow the following INPUT protocols (from external): `icmp`, `tcp/22`, `tcp/80`, `tcp/443` and `tcp/6443`.
 
-Check the rules on the `gateway-01` VM (example if `ens18` is the public network interface):
+Check the rules on the `gateway-01` VM (example if `ens18` is the public network interface - `192.168.0.0/24` in this case):
 
 ```bash
 root@gateway-01:~# iptables -L INPUT -v -n
@@ -42,7 +42,9 @@ Chain INPUT (policy ACCEPT 0 packets, 0 bytes)
 
 ### Kubernetes Public IP Address
 
-A public IP address need to be defined on the public network interface of the `gateway-01` VM (done in the `01-prerequisites` part).
+A domain name needs to be mapped to the public IP address of the router on Cloudflare (done in the `01-prerequisites` part). 
+> This domain name will be used in place of IP address for the Kubernetes public IP address.
+
 
 ### Verification
 
@@ -59,13 +61,14 @@ ip a
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
-    inet6 ::1/128 scope host
+    inet6 ::1/128 scope host 
        valid_lft forever preferred_lft forever
-2: ens18: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
-    link/ether e6:27:6e:8c:d6:7b brd ff:ff:ff:ff:ff:ff
-    inet 192.168.8.10/24 brd 192.168.8.255 scope global ens18
+2: ens19: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether da:a7:2f:71:e1:58 brd ff:ff:ff:ff:ff:ff
+    altname enp0s19
+    inet 172.16.0.10/24 brd 172.16.0.255 scope global ens19
        valid_lft forever preferred_lft forever
-    inet6 fe80::e427:6eff:fe8c:d67b/64 scope link
+    inet6 fe80::d8a7:2fff:fe71:e158/64 scope link 
        valid_lft forever preferred_lft forever
 ```
 
@@ -78,43 +81,45 @@ for i in 0 1 2; do ping -c1 controller-$i; ping -c1 worker-$i; done
 > Output:
 
 ```bash
-PING controller-0 (192.168.8.10) 56(84) bytes of data.
-64 bytes from controller-0 (192.168.8.10): icmp_seq=1 ttl=64 time=0.598 ms
+PING controller-0 (172.16.0.10) 56(84) bytes of data.
+64 bytes from controller-0 (172.16.0.10): icmp_seq=1 ttl=64 time=0.207 ms
 
 --- controller-0 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 0.598/0.598/0.598/0.000 ms
-PING worker-0 (192.168.8.20) 56(84) bytes of data.
-64 bytes from worker-0 (192.168.8.20): icmp_seq=1 ttl=64 time=0.474 ms
+rtt min/avg/max/mdev = 0.207/0.207/0.207/0.000 ms
+PING worker-0 (172.16.0.20) 56(84) bytes of data.
+64 bytes from worker-0 (172.16.0.20): icmp_seq=1 ttl=64 time=0.362 ms
 
 --- worker-0 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 0.474/0.474/0.474/0.000 ms
-PING controller-1 (192.168.8.11) 56(84) bytes of data.
-64 bytes from controller-1 (192.168.8.11): icmp_seq=1 ttl=64 time=0.546 ms
+rtt min/avg/max/mdev = 0.362/0.362/0.362/0.000 ms
+PING controller-1 (172.16.0.11) 56(84) bytes of data.
+64 bytes from controller-1 (172.16.0.11): icmp_seq=1 ttl=64 time=0.120 ms
 
 --- controller-1 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 0.546/0.546/0.546/0.000 ms
-PING worker-1 (192.168.8.21) 56(84) bytes of data.
-64 bytes from worker-1 (192.168.8.21): icmp_seq=1 ttl=64 time=1.10 ms
+rtt min/avg/max/mdev = 0.120/0.120/0.120/0.000 ms
+PING worker-1 (172.16.0.21) 56(84) bytes of data.
+64 bytes from worker-1 (172.16.0.21): icmp_seq=1 ttl=64 time=0.239 ms
 
 --- worker-1 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 1.101/1.101/1.101/0.000 ms
-PING controller-2 (192.168.8.12) 56(84) bytes of data.
-64 bytes from controller-2 (192.168.8.12): icmp_seq=1 ttl=64 time=0.483 ms
+rtt min/avg/max/mdev = 0.239/0.239/0.239/0.000 ms
+PING controller-2 (172.16.0.12) 56(84) bytes of data.
+64 bytes from controller-2 (172.16.0.12): icmp_seq=1 ttl=64 time=0.255 ms
 
 --- controller-2 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 0.483/0.483/0.483/0.000 ms
-PING worker-2 (192.168.8.22) 56(84) bytes of data.
-64 bytes from worker-2 (192.168.8.22): icmp_seq=1 ttl=64 time=0.650 ms
+rtt min/avg/max/mdev = 0.255/0.255/0.255/0.000 ms
+PING worker-2 (172.16.0.22) 56(84) bytes of data.
+64 bytes from worker-2 (172.16.0.22): icmp_seq=1 ttl=64 time=0.215 ms
 
 --- worker-2 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 0.650/0.650/0.650/0.000 ms
+rtt min/avg/max/mdev = 0.215/0.215/0.215/0.000 ms
 ```
+
+> Perform the above test on the admin/jumpbox server as well to confirm its connectivity to all the nodes.
 
 ## Configuring SSH Access
 
@@ -201,5 +206,6 @@ logout
 Connection to controller-0 closed.
 nemo@gateway-01:~$
 ```
+> If you haven't done so at this point, it is worth configuring the same ssh access from the admin server/jumpbox to all the nodes as well (this is optional).
 
 Next: [Provisioning a CA and Generating TLS Certificates](04-certificate-authority.md)

@@ -284,9 +284,9 @@ ssh root@controller-0 kubectl get nodes --kubeconfig admin.kubeconfig
 
 ```bash
 NAME       STATUS   ROLES    AGE   VERSION
-worker-0   Ready    <none>   15s   v1.29.1
-worker-1   Ready    <none>   15s   v1.29.1
-worker-2   Ready    <none>   15s   v1.29.1
+worker-0   Ready    <none>   21d   v1.29.1
+worker-1   Ready    <none>   21d   v1.29.1
+worker-2   Ready    <none>   21d   v1.29.1
 ```
 
 > [!NOTE]
